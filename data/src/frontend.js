@@ -3466,6 +3466,11 @@ class EJS_Frontend {
         }
 
         const retroAchievementsOptions = createSettingParent(true, "RetroAchievements (Requires restart)", home);
+        const raRuntimeNotice = this.ejs.createElement("div");
+        raRuntimeNotice.classList.add("ejs_control_row");
+        raRuntimeNotice.style.cssText = "display:block;padding:10px;font-size:12px;line-height:1.45;";
+        raRuntimeNotice.innerText = this.localization("Runtime integration is not available in this build yet. These settings are preparatory only; achievements will not unlock until the rcheevos runtime and core memory callbacks are integrated.");
+        retroAchievementsOptions.appendChild(raRuntimeNotice);
         addToMenu(this.localization("Enable RetroAchievements"), "cheevos_enable", {
             "true": this.localization("Enabled"),
             "false": this.localization("Disabled")
