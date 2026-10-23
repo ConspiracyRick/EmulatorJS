@@ -10,13 +10,16 @@ RetroAchievements compatibility is core-specific. "All systems" means all suppor
 
 The EmulatorJS core build uses `EmulatorJS/RetroArch/Makefile.emulatorjs`. That Makefile currently enables networking but does not set `HAVE_CHEEVOS`, so the RetroArch achievement implementation is excluded from the compiled runtime.
 
-After the build checkout has cloned the RetroArch source, apply this branch's helper to its Makefile:
+Apply the change **before** running the core build, so the build does not start compiling the unpatched source. From a clean checkout of the separate `EmulatorJS/build` repository, for example:
 
 ```sh
-node scripts/enable-retroachievements-build.js /path/to/compile/RetroArch/Makefile.emulatorjs
+mkdir -p compile
+git clone --depth 1 https://github.com/EmulatorJS/RetroArch.git compile/RetroArch
+node /path/to/ConspiracyRick-EmulatorJS/scripts/enable-retroachievements-build.js compile/RetroArch/Makefile.emulatorjs
+# Now run the normal core build command from the EmulatorJS/build repository.
 ```
 
-The helper adds `HAVE_CHEEVOS ?= 1` and is safe to run more than once. Build every required normal/threaded/legacy core variant again with the updated RetroArch source, then publish/use the resulting core archives with this frontend. A normal frontend-only `npm run build` does not rebuild these core archives.
+Replace `/path/to/ConspiracyRick-EmulatorJS` with the path to this branch's checkout. The helper adds `HAVE_CHEEVOS ?= 1` and is safe to run more than once. The build script reuses the existing `compile/RetroArch` checkout; keep the local Makefile change in place while building. Build every required normal/threaded/legacy core variant again with the updated RetroArch source, then publish/use the resulting core archives with this frontend. A normal frontend-only `npm run build` does not rebuild these core archives.
 
 For an automated production build, make this one-line change permanent in the RetroArch fork used by the EmulatorJS build pipeline. Keep `HAVE_NETWORKING=1` enabled; RetroAchievements needs network access. The build must include the rcheevos sources and Emscripten HTTP implementation supplied by RetroArch's `Makefile.common`.
 
