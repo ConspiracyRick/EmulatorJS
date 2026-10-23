@@ -3465,6 +3465,88 @@ class EJS_Frontend {
             }, this.ejs.config.threads ? "enabled" : "disabled", home);
         }
 
+        const retroAchievementsOptions = createSettingParent(true, "RetroAchievements (Requires restart)", home);
+        addToMenu(this.localization("Enable RetroAchievements"), "cheevos_enable", {
+            "true": this.localization("Enabled"),
+            "false": this.localization("Disabled")
+        }, this.ejs.preGetSetting("cheevos_enable") === "false" ? "false" : "true", retroAchievementsOptions, true);
+        addToMenu(this.localization("Hardcore Mode"), "cheevos_hardcore_mode", {
+            "true": this.localization("Enabled"),
+            "false": this.localization("Disabled")
+        }, this.ejs.preGetSetting("cheevos_hardcore_mode") === "true" ? "true" : "false", retroAchievementsOptions, true);
+
+        // Credentials are entered locally and are never logged. RetroArch reads them
+        // when it starts, so saving credentials requires restarting the emulator.
+        const raCredentialsRow = this.ejs.createElement("div");
+        raCredentialsRow.classList.add("ejs_control_row");
+        raCredentialsRow.style.cssText = "display:block;padding:10px;";
+        const raCredentialsTitle = this.ejs.createElement("div");
+        raCredentialsTitle.innerText = this.localization("RetroAchievements account");
+        raCredentialsTitle.style.cssText = "font-weight:bold;margin-bottom:8px;";
+        raCredentialsRow.appendChild(raCredentialsTitle);
+        const raCredentialsHint = this.ejs.createElement("div");
+        raCredentialsHint.innerText = this.localization("Enter your RetroAchievements username and password. Saved credentials are stored in this browser on this website.");
+        raCredentialsHint.style.cssText = "font-size:12px;opacity:0.8;margin-bottom:8px;";
+        raCredentialsRow.appendChild(raCredentialsHint);
+        const raUsernameLabel = this.ejs.createElement("label");
+        raUsernameLabel.innerText = this.localization("Username");
+        raUsernameLabel.style.cssText = "display:block;margin:6px 0;";
+        const raUsernameInput = this.ejs.createElement("input");
+        raUsernameInput.type = "text";
+        raUsernameInput.autocomplete = "username";
+        raUsernameInput.maxLength = 100;
+        raUsernameInput.style.cssText = "width:100%;box-sizing:border-box;";
+        raUsernameLabel.appendChild(raUsernameInput);
+        raCredentialsRow.appendChild(raUsernameLabel);
+        const raPasswordLabel = this.ejs.createElement("label");
+        raPasswordLabel.innerText = this.localization("Password");
+        raPasswordLabel.style.cssText = "display:block;margin:6px 0;";
+        const raPasswordInput = this.ejs.createElement("input");
+        raPasswordInput.type = "password";
+        raPasswordInput.autocomplete = "current-password";
+        raPasswordInput.maxLength = 256;
+        raPasswordInput.style.cssText = "width:100%;box-sizing:border-box;";
+        raPasswordLabel.appendChild(raPasswordInput);
+        raCredentialsRow.appendChild(raPasswordLabel);
+        const raCredentialsStatus = this.ejs.createElement("div");
+        raCredentialsStatus.setAttribute("role", "status");
+        raCredentialsStatus.style.cssText = "font-size:12px;margin:8px 0;";
+        raCredentialsRow.appendChild(raCredentialsStatus);
+        const raCredentialsSave = this.ejs.createElement("button");
+        raCredentialsSave.type = "button";
+        raCredentialsSave.classList.add("ejs_option_row", "ejs_button_style");
+        raCredentialsSave.innerText = this.localization("Save account");
+        raCredentialsSave.style.cssText = "width:100%;";
+        raCredentialsSave.addEventListener("click", () => {
+            if (this.ejs.config.disableLocalStorage || !window.localStorage) {
+                raCredentialsStatus.innerText = this.localization("Local storage is disabled. Configure EJS_retroAchievements in the embed settings instead.");
+                return;
+            }
+            const username = raUsernameInput.value.trim();
+            const password = raPasswordInput.value;
+            if (!username || !password) {
+                raCredentialsStatus.innerText = this.localization("Enter both username and password.");
+                return;
+            }
+            try {
+                localStorage.setItem("ejs-retroachievements-auth", JSON.stringify({ username, password }));
+                raCredentialsStatus.innerText = this.localization("Saved. Restart the emulator to apply your account.");
+            } catch (error) {
+                raCredentialsStatus.innerText = this.localization("Could not save credentials in this browser.");
+            }
+        });
+        raCredentialsRow.appendChild(raCredentialsSave);
+        retroAchievementsOptions.appendChild(raCredentialsRow);
+        try {
+            const storedCredentials = JSON.parse(localStorage.getItem("ejs-retroachievements-auth") || "{}");
+            raUsernameInput.value = typeof this.ejs.config.retroAchievements?.username === "string" ? this.ejs.config.retroAchievements.username : (storedCredentials.username || "");
+            // Do not prefill the password field from storage. This avoids exposing a
+            // saved password to shoulder-surfing; leave it blank until the user edits it.
+        } catch (error) {
+            // Ignore malformed local settings and leave the fields blank.
+        }
+        checkForEmptyMenu(retroAchievementsOptions);
+
         const graphicsOptions = createSettingParent(true, "Graphics Settings", home);
 
         if (this.ejs.shaders) {
