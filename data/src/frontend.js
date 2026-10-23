@@ -3541,6 +3541,24 @@ class EJS_Frontend {
             }
         });
         raCredentialsRow.appendChild(raCredentialsSave);
+        const raCredentialsClear = this.ejs.createElement("button");
+        raCredentialsClear.type = "button";
+        raCredentialsClear.classList.add("ejs_option_row", "ejs_button_style");
+        raCredentialsClear.innerText = this.localization("Clear saved account");
+        raCredentialsClear.style.cssText = "width:100%;margin-top:6px;";
+        raCredentialsClear.addEventListener("click", () => {
+            try {
+                if (window.localStorage && !this.ejs.config.disableLocalStorage) {
+                    localStorage.removeItem("ejs-retroachievements-auth");
+                }
+                raUsernameInput.value = "";
+                raPasswordInput.value = "";
+                raCredentialsStatus.innerText = this.localization("Saved account cleared. Restart the emulator to apply the change.");
+            } catch (error) {
+                raCredentialsStatus.innerText = this.localization("Could not clear saved account in this browser.");
+            }
+        });
+        raCredentialsRow.appendChild(raCredentialsClear);
         retroAchievementsOptions.appendChild(raCredentialsRow);
         try {
             const storedCredentials = JSON.parse(localStorage.getItem("ejs-retroachievements-auth") || "{}");
