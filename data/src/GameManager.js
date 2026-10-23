@@ -204,11 +204,11 @@ class EJS_GameManager {
         const raConfig = this.EJS.config.retroAchievements || {};
         const raUsername = typeof raConfig.username === "string" ? raConfig.username : (typeof raCredentials.username === "string" ? raCredentials.username : "");
         const raPassword = typeof raConfig.password === "string" ? raConfig.password : (typeof raCredentials.password === "string" ? raCredentials.password : "");
-        const escapeCfgString = (value) => String(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/[\\r\\n]/g, "");
-        cfg += 'cheevos_enable = "' + (raEnabled === "false" ? "false" : "true") + '"\\n';
-        cfg += 'cheevos_hardcore_mode = "' + (raHardcore === "true" ? "true" : "false") + '"\\n';
-        cfg += 'cheevos_username = "' + escapeCfgString(raUsername) + '"\\n';
-        cfg += 'cheevos_password = "' + escapeCfgString(raPassword) + '"\\n';
+        const escapeCfgString = (value) => String(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/[\r\n]/g, "");
+        cfg += 'cheevos_enable = "' + (raEnabled === "false" ? "false" : "true") + '"\n';
+        cfg += 'cheevos_hardcore_mode = "' + (raHardcore === "true" ? "true" : "false") + '"\n';
+        cfg += 'cheevos_username = "' + escapeCfgString(raUsername) + '"\n';
+        cfg += 'cheevos_password = "' + escapeCfgString(raPassword) + '"\n';
         return cfg;
     }
     writeBootupBatchFile() {
