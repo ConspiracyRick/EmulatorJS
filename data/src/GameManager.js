@@ -186,6 +186,29 @@ class EJS_GameManager {
                 }
             });
         }
+
+        // RetroArch's native cheevos implementation performs game identification,
+        // achievement evaluation, unlock submissions, leaderboards, and notifications.
+        // Keep these settings after user-provided options so the dedicated settings UI
+        // remains authoritative. Credentials are stored per origin, not per game.
+        const raEnabled = this.EJS.preGetSetting("cheevos_enable");
+        const raHardcore = this.EJS.preGetSetting("cheevos_hardcore_mode");
+        let raCredentials = {};
+        try {
+            if (window.localStorage && !this.EJS.config.disableLocalStorage) {
+                raCredentials = JSON.parse(localStorage.getItem("ejs-retroachievements-auth") || "{}");
+            }
+        } catch (error) {
+            console.warn("Could not load RetroAchievements credentials.");
+        }
+        const raConfig = this.EJS.config.retroAchievements || {};
+        const raUsername = typeof raConfig.username === "string" ? raConfig.username : (typeof raCredentials.username === "string" ? raCredentials.username : "");
+        const raPassword = typeof raConfig.password === "string" ? raConfig.password : (typeof raCredentials.password === "string" ? raCredentials.password : "");
+        const escapeCfgString = (value) => String(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/[\\r\\n]/g, "");
+        cfg += 'cheevos_enable = "' + (raEnabled === "false" ? "false" : "true") + '"\\n';
+        cfg += 'cheevos_hardcore_mode = "' + (raHardcore === "true" ? "true" : "false") + '"\\n';
+        cfg += 'cheevos_username = "' + escapeCfgString(raUsername) + '"\\n';
+        cfg += 'cheevos_password = "' + escapeCfgString(raPassword) + '"\\n';
         return cfg;
     }
     writeBootupBatchFile() {
